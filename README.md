@@ -18,3 +18,4 @@ AUTHORS
 LINKS
 ===============
 * http://www.splint.org
+* http://www.the-little-red-haired-girl.org/pub/splint/index.html
