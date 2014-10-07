@@ -1,0 +1,51 @@
+Building splint:
+----------------
+
+This file is originally part of the binary distribution of splint 
+for OS/2.
+
+For building splint for OS/2 you need the complete "original" source
+package (available e.g. via Dave Evans' splint homepage) and maybe 
+some more recent patches for the OS/2 version. The splint home page
+is at:
+
+  http://www.splint.org
+
+My fixes can be found at:
+
+  http://www.fh-wedel.de/pub/fh-wedel/staff/di/lclint/index.html
+
+You also need a couple of Unix tools. These are available as free 
+software (GNU tools) or freeware (IBM aixlike tools). In particular
+the tools needed are:
+
+ - A Unix shell. I use ksh, but others may do as well
+ - The Unix `date', `cp', `mv', `rm' and `echo' commands
+ - The `sed' and `tr' filters
+ - GNU make (IBM/M$'s `nmake' does *not* work here)
+ - Optionally, `flex' and `bison' (if not available, comment out
+   the corresponding entries from the Makefile.os2 file)
+
+Use the batch file makeos2.cmd from inside the os2/ directory to build 
+splint. The options to that batch file are:
+
+  makeos2 [--compile|-c|--test|-t|--package|-p]
+
+This batch should be called from inside the os2 directory. I have
+abandoned support for any compiler other than gcc 3.1.x or higher,
+so that the build process has become much simpler. Use the "-c" or
+"--compile" option to build splint, and optionally run the quicktest
+by running the batch with "-t" (other tests are not supported).
+
+Please, be aware that you need the flex library in order to build splint.
+As far as I remember the OS/2 version of flex comes with this library for
+the emx/gcc compiler. If not, you will easily be able to compile it 
+following the instructions from flex'es README.OS2 file.
+
+The Makefile.os2 is currently configured to use flex and bison to generate 
+some source files. If you do not have these tools on your system you should 
+change the corresponding section to use the .der files shipping with the 
+splint sources.
+
+Herbert in August 2007
+

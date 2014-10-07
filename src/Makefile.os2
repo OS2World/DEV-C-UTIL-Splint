@@ -1,0 +1,239 @@
+#
+# splint Makefile for GNU Make on OS/2 systems
+#
+# Derived from original Unix makefile by Herbert
+#
+
+SHELL = /usr/bin/ksh
+
+include ../os2/make.vars
+
+BISON_SRC = cgrammar.y  llgrammar.y  mtgrammar.y  signature.y
+
+
+## We only build Splint
+bin_PROGRAMS = splint$(EXEEXT)
+
+## This is a fake program, so we can easily substitute in the extra LCL objects
+EXTRA_PROGRAMS = lcl
+
+AM_CPPFLAGS = -IHeaders
+
+## The main sources
+
+SETSRC = globSet.c intSet.c typeIdSet.c guardSet.c usymIdSet.c sRefSet.c
+
+LISTSRC = clauseStack.c filelocStack.c \
+          cstringList.c cstringSList.c sRefSetList.c ctypeList.c \
+          enumNameList.c enumNameSList.c exprNodeList.c exprNodeSList.c \
+          uentryList.c fileIdList.c filelocList.c qualList.c sRefList.c \
+          flagMarkerList.c idDeclList.c flagSpec.c
+
+CPPSRC = cppmain.c cpplib.c cppexp.c cpphash.c cpperror.c
+
+CSRC = context.c uentry.c cprim.c macrocache.c qual.c qtype.c stateClause.c \
+       stateClauseList.c ctype.c cvar.c clabstract.c idDecl.c clause.c \
+       globalsClause.c modifiesClause.c warnClause.c functionClause.c \
+       functionClauseList.c metaStateConstraint.c metaStateConstraintList.c \
+       metaStateExpression.c metaStateSpecifier.c functionConstraint.c \
+       pointers.c cscannerHelp.c	
+
+SPLINTSRC = exprNode.c exprChecks.c llmain.c help.c rcfiles.c
+CHECKSRC = structNames.c transferChecks.c varKinds.c nameChecks.c
+
+GLOBSRC = globals.c flags.c general.c osd.c reader.c mtreader.c
+
+GRAMSRC = cgrammar.c cscanner.c mtscanner.c mtgrammar.c llgrammar.c signature.c
+
+OVERFLOWCHSRC = constraintList.c constraintResolve.c \
+                constraintGeneration.c constraintTerm.c \
+                constraintExprData.c constraintExpr.c constraint.c \
+                loopHeuristics.c 
+
+GENERALSRC = exprData.c cstring.c fileloc.c message.c inputStream.c \
+             fileTable.c cstringTable.c valueTable.c stateValue.c \
+             llerror.c messageLog.c flagMarker.c aliasTable.c ynm.c \
+             sRefTable.c genericTable.c ekind.c usymtab.c multiVal.c \
+             lltok.c sRef.c lcllib.c randomNumbers.c fileLib.c
+
+METASTATESRC = stateInfo.c stateCombinationTable.c metaStateTable.c \
+               metaStateInfo.c annotationTable.c annotationInfo.c mttok.c \
+               mtDeclarationNode.c mtDeclarationPieces.c mtDeclarationPiece.c \
+               mtContextNode.c mtValuesNode.c mtDefaultsNode.c \
+               mtAnnotationsNode.c mtMergeNode.c mtAnnotationList.c \
+               mtAnnotationDecl.c mtTransferClauseList.c mtTransferClause.c \
+               mtTransferAction.c mtLoseReferenceList.c mtLoseReference.c \
+               mtDefaultsDeclList.c mtDefaultsDecl.c mtMergeItem.c \
+               mtMergeClause.c mtMergeClauseList.c
+
+## These are only used if LCL is enabled
+
+LCLONLYSRC = usymtab_interface.c abstract.c ltoken.c lclscanline.c \
+             lclsyntable.c lcltokentable.c sort.c symtable.c lclinit.c \
+             shift.c lclscan.c lsymbol.c mapping.c
+
+LSLSRC = tokentable.c scan.c scanline.c lslparse.c \
+         lh.c checking.c lclctypes.c imports.c lslinit.c syntable.c 
+
+LCLSETSRC  = lsymbolSet.c sigNodeSet.c lslOpSet.c sortSet.c
+
+LCLLISTSRC = initDeclNodeList.c sortList.c declaratorInvNodeList.c \
+             interfaceNodeList.c sortSetList.c declaratorNodeList.c \
+             letDeclNodeList.c stDeclNodeList.c storeRefNodeList.c \
+             lslOpList.c lsymbolList.c termNodeList.c ltokenList.c \
+             traitRefNodeList.c pairNodeList.c typeNameNodeList.c \
+             fcnNodeList.c paramNodeList.c programNodeList.c \
+             varDeclarationNodeList.c varNodeList.c quantifierNodeList.c \
+             replaceNodeList.c importNodeList.c
+
+IFILES =  ctbase.i  cttable.i  exprDataQuite.i
+
+#Files that are used on systems that do not have bison or yacc
+DER_BISON_FILES = signature.c.der  cgrammar.c.der  mtgrammar.c.der \
+                  llgrammar.c.der 
+DER_FILES = $(DER_BISON_FILES)
+
+
+COMMONSRC =  $(CPPSRC) $(CSRC) $(CHECKSRC) $(GENERALSRC) \
+            $(GLOBSRC) $(LISTSRC) $(SETSRC) $(METASTATESRC)
+
+LCLSRC = $(LCLSETSRC) $(LCLLISTSRC) $(LSLSRC) $(COMMONSRC) $(LCLONLYSRC) 
+
+ALLSRC = $(GRAMSRC) $(SPLINTSRC) $(OVERFLOWCHSRC) $(LCLSRC)
+# snprintf.c
+
+#files to run Splint on
+LINTSRC = $(COMMONSRC) $(SPLINTSRC)
+
+lcl_SOURCES = $(LCLSRC)
+CONFIG_HEADER = ../config.h
+
+splint_SOURCES = $(ALLSRC)
+splint_OBJECTS = $(splint_SOURCES:.c=$O)
+
+# Keep it fake
+.PHONY: lcl$(EXEEXT)
+
+DEFS = -DHAVE_CONFIG_H -D__pid_t=pid_t
+DEFAULT_INCLUDES =  -I. -I..
+
+## Sources that need to be built
+BUILT_SOURCES = Headers/signature_gen.h Headers/cgrammar_tokens.h \
+                Headers/llgrammar_gen.h Headers/llgrammar_gen2.h \
+                Headers/mtgrammar_tokens.h signature.c cgrammar.c \
+                llgrammar.c mtgrammar.c Headers/flag_codes.gen \
+                $(DER_FILES)
+
+all: $(binDir)/splint$(EXEEXT) ../os2/setenv.cmd
+	$(MAKE) -C ../lib -f Makefile.os2
+
+$(CONFIG_HEADER): ../os2/os2config.h.in
+	$(SED) -e 's|@DEFAULT_LARCHPATH@|$(DEFAULT_LARCHPATH)|' \
+	-e 's|@DEFAULT_LCLIMPORTDIR@|$(DEFAULT_LCLIMPORTDIR)|' \
+	-e 's|@GCC_INCLUDE_DIR@|$(GCC_INCLUDE_DIR)|' \
+	-e 's|@GCC_INCLUDE_DIR2@|$(GCC_INCLUDE_DIR2)|' \
+	-e 's|@TARGET_CPU@|$(TARGET_CPU)|' \
+	-e 's|@UNAME@|$(UNAME)|' \
+	-e 's|@LCL_COMPILE@|$(LCL_COMPILE)|' \
+	-e 's|@LCL_PARSE_VERSION@|$(LCL_PARSE_VERSION)|' \
+	-e 's|@SPLINT_VERSION@|$(SPLINT_VERSION)|' \
+	-e 's|@SYSTEM_LIBDIR@|$(SYSTEM_LIBDIR)|' \
+	$< >$@
+
+../os2/setenv.cmd: ../os2/setenv.cmd.in
+	$(SED) -e 's|@LCL_VERSION@|$(LCL_VERSION)|' \
+	-e 's|@BASEDIR@|$(BASEDIR)|' \
+	$< | tr '/' '\\\\\\' >$@
+
+Headers/signature_gen.h signature.c: signature.c.der signature.y
+ifndef BISON
+	$(CP) signature.c.der signature.c
+else 
+	echo "Making signature.c"
+	$(BISON) $(YFLAGS) -p lsl signature.y
+	$(CAT) bison.head signature.tab.c bison.reset >signature.c
+	$(CP) signature.c signature.c.der
+	-$(MV) Headers/signature_gen.h Headers/signature_gen.bak
+	$(CAT) bison.head signature.tab.h bison.reset >Headers/signature_gen.h
+	$(RM) signature.tab.c signature.tab.h
+endif
+
+## 11/29/001 drl added copy so that the file cgrammar.c.der is created
+
+Headers/cgrammar_tokens.h cgrammar.c: cgrammar.c.der cgrammar.y
+ifndef BISON
+	$(CP) cgrammar.c.der cgrammar.c
+else 
+	@echo "Making cgrammar.c"
+	@echo "Expect 141 shift/reduce conflicts and 111 reduce/reduce conflicts."
+	@echo "(see cgrammar.y for explanation)"
+	$(BISON) $(YFLAGS) cgrammar.y
+	$(CAT) bison.head cgrammar.tab.c bison.reset >cgrammar.c
+	$(CP) cgrammar.c cgrammar.c.der
+	-$(MV) Headers/cgrammar_tokens.h Headers/cgrammar_tokens.bak
+	$(CAT) bison.head cgrammar.tab.h bison.reset >Headers/cgrammar_tokens.h
+	$(RM) cgrammar.tab.c cgrammar.tab.h
+endif
+
+## 10/16/001 drl added copy so that the file mtgrammar.c.der is created
+## also removed the dependency for this file on mtgrammary.c  
+
+Headers/mtgrammar_tokens.h mtgrammar.c: mtgrammar.y
+ifndef BISON
+	$(CP) mtgrammar.c.der mtgrammar.c
+else 
+	@echo "Making mtgrammar.c"
+	@echo "Expect 11 shift/reduce conflicts."
+	$(BISON) $(YFLAGS) -p mt mtgrammar.y
+	$(CAT) bison.head mtgrammar.tab.c bison.reset >mtgrammar.c
+	$(CP) mtgrammar.c mtgrammar.c.der
+	-$(MV) Headers/mtgrammar_tokens.h Headers/mtgrammar_tokens.bak
+	$(CAT) bison.head mtgrammar.tab.h bison.reset >Headers/mtgrammar_tokens.h
+	$(RM) mtgrammar.tab.c mtgrammar.tab.h
+endif
+
+Headers/llgrammar_gen.h Headers/llgrammar_gen2.h llgrammar.c: llgrammar.c.der llgrammar.y
+ifndef BISON
+	$(CP) llgrammar.c.der llgrammar.c
+else 
+	@echo "Making llgrammar.c"
+	@echo "Expect 2 shift/reduce conflicts"
+	$(BISON) $(YFLAGS) -p yl llgrammar.y
+	$(CAT) bison.head llgrammar.tab.c bison.reset >llgrammar.c
+	$(CP) llgrammar.c llgrammar.c.der
+	-$(MV) Headers/llgrammar_gen2.h Headers/llgrammar_gen2.bak
+	-$(MV) Headers/llgrammar_gen.h Headers/llgrammar_gen.bak
+	$(CAT) bison.head llgrammar.tab.h bison.reset >Headers/llgrammar_gen2.h
+	$(CAT) bison.head llgrammar.tab.h bison.reset >Headers/llgrammar_gen.h
+	$(RM) llgrammar.tab.c llgrammar.tab.h
+endif
+
+cscanner.c: cscanner.l
+	$(FLEX) $(LFLAGS) cscanner.l 
+	$(CAT) flex.head lexyy.c flex.reset > cscanner.c
+
+Headers/flag_codes.gen: flags.def
+	grep "FLG_" flags.def > Headers/flag_codes.gen
+
+$(binDir)/splint$(EXEEXT):  splint$(EXEEXT)
+	-$(RM) -f $(binDir)/splint$(EXEEXT)
+	$(CP) splint$(EXEEXT)  $(binDir)/splint$(EXEEXT)
+
+clean: 
+	-rm -f $(splint_OBJECTS) core *.core *~ 
+	-rm -f cgrammar.c llgrammar.c mtgrammar.c signature.c cscanner.c
+
+CLEANFILES = splint$(EXEEXT)  $(binDir)/splint$(EXEEXT)
+
+snprintf$O: snprintf.c
+	$(CC) $(CFLAGS) $(DEFS) $(DEFAULT_INCLUDES) \
+	  -DHAVE_STRING_H -DHAVE_STDLIB_H -DHAVE_CTYPE_H $(CPPFLAGS) -c $<
+
+%$O: %.c
+	$(CC) $(CFLAGS) $(DEFS) $(DEFAULT_INCLUDES) $(CPPFLAGS) -c $<
+
+splint$(EXEEXT) : $(CONFIG_HEADER) $(BUILT_SOURCES) $(splint_OBJECTS) 
+	$(CC) $(OFLAG)$@ $(splint_OBJECTS) $(LDFLAGS)
+
+list:
+	@echo "$(splint_OBJECTS)"

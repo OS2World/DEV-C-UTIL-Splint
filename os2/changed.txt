@@ -1,0 +1,4 @@
+osd.c
+Makefile.os2
+../test/Makefile.os2
+../os2/makeos2.cmd
